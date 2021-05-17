@@ -7,14 +7,20 @@
 #include <netinet/in.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <wait.h>
+#include <pthread.h>
+
+int access_sock, accept_sock;
+struct sockaddr_in server_addr, client_addr;
+int client_addr_len = sizeof(client_addr);
+int client_cnt = 0;
+char buf[256];
+
+pthread_t t_id;
+void *clientHandler(void *arg);
 
 int main(int argc, char *argv[])
 {
-    int access_sock, accept_sock;
-    struct sockaddr_in server_addr, client_addr;
-    int client_addr_len = sizeof(client_addr);
-    int client_cnt = 0;
-    char buf[256];
 
     if ((access_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
@@ -53,25 +59,35 @@ int main(int argc, char *argv[])
             printf("Number of service client : %d\n", client_cnt);
         }
 
-        if (fork() == 0)
+        if (pthread_create(&t_id, NULL, clientHandler, (void *)&accept_sock) < 0)
         {
-            close(access_sock);
-            while (1)
-            {
-                recv(accept_sock, buf, sizeof(buf), 0);
-                printf("Recv from client : %s\n\n", buf);
-                if (strcmp(buf, "\\quit") == 0)
-                {
-                    printf("Client-%d disconneted...\n\n", client_cnt);
-                    break;
-                }
-                send(accept_sock, buf, strlen(buf) + 1, 0);
-            }
-            exit(0);
+            perror("thread create error");
+            exit(1);
         }
+    }
+    close(access_sock);
+    return 0;
+}
 
-        close(accept_sock);
+void *clientHandler(void *arg)
+{
+    pthread_detach(pthread_self());
+
+    int clnt_sock = *((int *)arg);
+
+    while (1)
+    {
+        recv(clnt_sock, buf, sizeof(buf), 0);
+        printf("Recv from client : %s\n\n", buf);
+        if (strcmp(buf, "\\quit") == 0)
+        {
+            client_cnt--;
+            printf("Client_cnt : %d...\n\n", client_cnt);
+            break;
+        }
+        send(clnt_sock, buf, strlen(buf) + 1, 0);
     }
 
+    close(clnt_sock);
     return 0;
 }
