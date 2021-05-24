@@ -71,7 +71,7 @@ void *lobby_thread(void *arg)
                     // show chatroom list
                     if (strcmp(buf, "1") == 0)
                     {
-                        for (int j = 0; j < ROOMMAX_CNT; j++)
+                        for (int j = 0; j < (*info).Lobby.roomCnt; j++)
                         {
                             if ((*info).Room[j].roomId >= 0 && (*info).Room[j].roomId <= ROOMMAX_CNT)
                             {
@@ -145,6 +145,7 @@ void *lobby_thread(void *arg)
                             {
                                 (*info).Room[j].user[roomUserCnt] = (*info).Lobby.user[i];
                                 (*info).Lobby.user[i] = EMPTY;
+                                (*info).Lobby.userCnt--;
                                 printf("[MAIN] User %d join Ch.%d\n", (*info).Room[j].user[roomUserCnt], roomid);
                                 printf("[Ch.%d] New User : %d\n", roomid, (*info).Room[j].user[roomUserCnt]);
                                 (*info).Room[j].userCnt++;
