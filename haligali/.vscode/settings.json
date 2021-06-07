@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "includeset.h": "c",
+        "commomresource.h": "c"
+    }
+}

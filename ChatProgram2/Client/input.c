@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 
         if ((strcmp(buf, "3")) == 0)
         {
-            printf("Cahtroom name:");
+            printf("Chatroom name:");
             gets(buf);
             send(sock, buf, strlen(buf) + 1, 0);
         }

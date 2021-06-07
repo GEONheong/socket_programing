@@ -87,7 +87,6 @@ void *clientHandler(void *arg)
         }
         send(clnt_sock, buf, strlen(buf) + 1, 0);
     }
-
     close(clnt_sock);
     return 0;
 }
